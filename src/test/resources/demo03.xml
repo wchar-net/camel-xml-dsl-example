@@ -1,0 +1,42 @@
+<!--
+demo03
+调用http接口 -> 将返回值写入到数据库表中
+-->
+<routes xmlns="http://camel.apache.org/schema/spring">
+
+    <!-- No.1 调用http接口 -->
+    <route xmlns="http://camel.apache.org/schema/spring" id="route1">
+        <from uri="direct:startHttp"/>
+        <setHeader name="CamelHttpMethod">
+            <constant>GET</constant>
+        </setHeader>
+        <setHeader name="headerKey">
+            <constant>147258369QONGAS!@.54h</constant>
+        </setHeader>
+        <to uri="http://127.0.0.1:8081/demo03?paramName=张三啊&amp;paramAge=19"/>
+        <to uri="direct:handlerHttpResponse"/>
+    </route>
+
+    <!--
+        No.2 将返回值保存到数据库
+     -->
+    <route xmlns="http://camel.apache.org/schema/spring" id="route2">
+        <from uri="direct:handlerHttpResponse"/>
+
+        <!-- 使用 jackson  -->
+        <unmarshal id="_unmarshal1">
+            <json library="Jackson"/>
+        </unmarshal>
+
+        <!-- 打印接口返回值  -->
+        <to uri="log:result"/>
+
+        <!-- 将data节点保存到数据库中  -->
+        <split>
+            <simple>${body[data]}</simple>
+            <to uri="sql:insert into sys_result(result1,result2,result3) values (:#resultHeaderKey,:#resultAge,:#resultName)"/>
+        </split>
+    </route>
+</routes>
+
+

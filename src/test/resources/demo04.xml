@@ -1,0 +1,48 @@
+<!--
+demo04
+node1(取用户表中最大的id) -> node2(调用http接口) -> node3(将http接口返回值存储到表中)
+-->
+<routes xmlns="http://camel.apache.org/schema/spring">
+
+    <!-- No.1 node1(取用户表中最大的id) -->
+    <route id="A001">
+        <from uri="direct:queryStandardData"/>
+        <to uri="sql:select max(user_id) as maxUserId from sys_user"/>
+        <to uri="direct:startHttp"/>
+    </route>
+
+    <!-- node2(调用http接口) -->
+    <route xmlns="http://camel.apache.org/schema/spring" id="A002">
+        <from uri="direct:startHttp"/>
+
+        <!-- 打印数据 -->
+        <log id="_log1" message="${body}"/>
+
+        <setHeader name="CamelHttpMethod">
+            <constant>GET</constant>
+        </setHeader>
+        <setHeader name="headerKey">
+            <constant>147258369QONGAS!@.54h</constant>
+        </setHeader>
+        <toD uri="http://127.0.0.1:8081/demo04?id=${body[0][maxUserId]}"/>
+        <to uri="direct:handlerHttpResponse"/>
+    </route>
+
+    <!-- node3(将http接口返回值存储到表中) -->
+    <route xmlns="http://camel.apache.org/schema/spring" id="A003">
+        <from uri="direct:handlerHttpResponse"/>
+
+        <!-- 使用 jackson  -->
+        <unmarshal id="_unmarshal1">
+            <json library="Jackson"/>
+        </unmarshal>
+
+        <!-- 打印接口返回值  -->
+        <to uri="log:result"/>
+
+        <!-- 将data节点保存到数据库中  -->
+        <to uri="sql:insert into sys_result(result1,result2,result3) values (:#result1,:#result2,:#result3)"/>
+    </route>
+</routes>
+
+

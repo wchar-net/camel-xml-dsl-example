@@ -1,0 +1,40 @@
+<!--
+demo02
+查询表中符合规范的数据 -> 然后调用http接口,上传数据
+-->
+<routes xmlns="http://camel.apache.org/schema/spring">
+
+
+    <!-- No.1 查询表中符合规范的数据 -->
+    <route id="A001">
+        <from uri="direct:queryStandardData"/>
+        <to uri="sql:select t.user_id as userId,t.user_name userName,t.user_address as userAddress FROM sys_user t  where t.is_del= 1 and t.user_address LIKE CONCAT('%','北','%')"/>
+        <to uri="direct:uploadDataForHttp"/>
+    </route>
+
+    <!-- No.2 然后调用http接口,上传数据-->
+    <route id="A002">
+        <from uri="direct:uploadDataForHttp"/>
+
+        <!-- jackson marshal 将select结果转换成json array-->
+        <marshal id="_unmarshal1">
+            <json library="Jackson"/>
+        </marshal>
+
+        <!-- 打印数据 -->
+        <log id="_log1" message="${body}"/>
+
+        <!-- 上传数据 -->
+        <setHeader name="CamelHttpMethod">
+            <constant>POST</constant>
+        </setHeader>
+        <setHeader name="Content-Type">
+            <constant>application/json; charset=utf-8</constant>
+        </setHeader>
+        <setHeader name="api-key">
+            <constant>147258369QAZwsxedcrfv!@</constant>
+        </setHeader>
+        <to uri="http://127.0.0.1:8081/demo02"/>
+    </route>
+
+</routes>

@@ -1,0 +1,26 @@
+<!--
+demo01
+查询表中符合规范的数据 -> 然后插入到结果表中
+-->
+<routes xmlns="http://camel.apache.org/schema/spring">
+
+
+    <!-- No.1 查询表中符合规范的数据 -->
+    <route id="A001">
+        <from uri="direct:queryStandardData"/>
+        <to uri="sql:select t.user_id,t.user_name,t.user_address FROM sys_user t  where t.is_del= 1 and t.user_address LIKE CONCAT('%','北','%')"/>
+        <to uri="direct:saveStandardData"/>
+    </route>
+
+    <!-- No.2 然后插入到结果表中 -->
+    <route id="A002">
+        <from uri="direct:saveStandardData"/>
+        <!-- 打印数据 -->
+        <to uri="log:info"/>
+        <split>
+            <simple>${body}</simple>
+            <to uri="sql:insert into sys_result(result1,result2) values (:#user_id,:#user_name)" />
+        </split>
+    </route>
+
+</routes>
