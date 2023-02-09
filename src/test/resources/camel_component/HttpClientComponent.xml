@@ -1,0 +1,49 @@
+<routes xmlns="http://camel.apache.org/schema/spring">
+
+
+    <!--
+        sql query component
+    -->
+    <route id="route_0aa95c10-47e3-49c6-95da-4c459eaf0baa" autoStartup="true">
+        <from uri="direct:sqlQueryComponent_88004797-49f9-4dc3-846f-216ae36428de"/>
+        <toD uri="sql:select * from base_ac_user limit 10?dataSource=dataSource"/>
+
+        <to uri="direct:jsonBodyToStrComponent_446da8f7-b40f-b220-c74c-032931946c5f"/>
+    </route>
+
+
+    <!-- json body to str component-->
+    <route id="route_d255817e-1c0b-1695-c52d-0eefb8a9dea4" autoStartup="true">
+        <from uri="direct:jsonBodyToStrComponent_446da8f7-b40f-b220-c74c-032931946c5f"/>
+        <marshal id="unmarshal_32dcf68c-73ae-4b07-e484-ca1be9253deb">
+            <json library="Jackson"/>
+        </marshal>
+
+        <to uri="direct:httpClientComponent_1b1cbb85-6394-db84-6869-9d19784c9a65"/>
+    </route>
+
+
+    <!-- http client component-->
+    <route id="route_288bb798-c770-831a-496b-8c259e9e05ad" autoStartup="true">
+        <from uri="direct:httpClientComponent_1b1cbb85-6394-db84-6869-9d19784c9a65"/>
+
+        <setHeader name="CamelHttpMethod">
+            <constant>POST</constant>
+        </setHeader>
+
+        <setHeader name="Content-Type">
+            <constant>application/json; charset=utf-8</constant>
+        </setHeader>
+
+        <setHeader name="CamelHttpQuery">
+            <constant>order=哈哈哈520sdf&amp;id=1025</constant>
+        </setHeader>
+
+        <to uri="http://127.0.0.1:8081/testHttpClient?connectionRequestTimeout=10000&amp;connectTimeout=10000&amp;socketTimeout=10000"/>
+    </route>
+
+
+
+
+
+</routes>

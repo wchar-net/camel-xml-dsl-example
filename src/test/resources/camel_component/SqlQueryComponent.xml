@@ -1,0 +1,34 @@
+<routes xmlns="http://camel.apache.org/schema/spring">
+
+    <!--
+        sql query component
+    -->
+    <route id="route_0aa95c10-47e3-49c6-95da-4c459eaf0baa" autoStartup="false">
+        <from uri="direct:sqlQueryComponent_88004797-49f9-4dc3-846f-216ae36428de"/>
+        <toD uri="sql:select * from base_ac_user limit 10?dataSource=dataSource" />
+
+        <to uri="direct:splitBodyComponent_b208c289-6dbe-46d1-89fc-cc6905c5c45b"/>
+    </route>
+
+
+    <!--
+        split body component
+    -->
+    <route id="route_74cb0e73-cf9a-42be-9f8f-f6f2a1083689" autoStartup="false">
+        <from uri="direct:splitBodyComponent_b208c289-6dbe-46d1-89fc-cc6905c5c45b"/>
+        <split>
+            <simple>${body}</simple>
+
+            <to uri="direct:sqlInsertComponent_29ec92ca-5398-4361-a118-f6fee3d4fc9d"/>
+        </split>
+    </route>
+
+
+    <!-- sql insert component -->
+    <route id="route_3e5eba66-a45e-4337-a973-4ac61266811c" autoStartup="false">
+        <from uri="direct:sqlInsertComponent_29ec92ca-5398-4361-a118-f6fee3d4fc9d"/>
+        <toD uri="sql:insert into test_666(id,USERCODE) values (:#userId,:#userCode)?dataSource=dataSource"/>
+    </route>
+
+
+</routes>

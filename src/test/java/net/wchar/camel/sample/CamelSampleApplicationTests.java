@@ -6,18 +6,23 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import javax.sql.DataSource;
+
 
 /**
  * @author wchar.net
  */
 @SpringBootTest(classes = CamelSampleApplication.class)
-class CamelSampleApplicationTests {
+public class CamelSampleApplicationTests {
 
     @Autowired
     protected CamelContext camelContext;
 
     @Autowired
     protected ProducerTemplate producerTemplate;
+
+    @Autowired
+    protected DataSource dataSource;
 
     @Test
     void contextLoads() {
